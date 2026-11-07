@@ -1,0 +1,6 @@
+# KiCad lock files (created while a project, schematic or board is open)
+~*.lck
+
+# KiCad autosave files
+_autosave-*
+\#auto_saved_files\#
