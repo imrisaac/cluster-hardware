@@ -1,0 +1,11 @@
+(version 1)
+
+# UNO R3 mounting holes H3/H4 (x = 66.04 mm) sit next to JMISC. The generic
+# 2x30 1.27 mm SMD header footprint's courtyard extends 1.14 mm past its pads
+# and touches the M3 hole courtyards (r = 3.45 mm) by ~0.25 mm. Physical
+# clearance is fine: header pads end at x = 61.70 mm, the M3 head/standoff
+# keepout (r = 3.2 mm) starts at x = 62.84 mm.
+(rule "UNO holes H3/H4 vs JMISC courtyard"
+	(constraint courtyard_clearance (min 0mm))
+	(severity ignore)
+	(condition "(A.Reference == 'JMISC' && (B.Reference == 'H3' || B.Reference == 'H4')) || (B.Reference == 'JMISC' && (A.Reference == 'H3' || A.Reference == 'H4'))"))

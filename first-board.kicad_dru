@@ -1,0 +1,47 @@
+(version 1)
+
+# UNO R3 mounting holes H3/H4 (x = 66.04 mm) sit next to JMISC. The generic
+# 2x30 1.27 mm SMD header footprint's courtyard extends 1.14 mm past its pads
+# and touches the M3 hole courtyards (r = 3.45 mm) by ~0.25 mm. Physical
+# clearance is fine: header pads end at x = 61.70 mm, the M3 head/standoff
+# keepout (r = 3.2 mm) starts at x = 62.84 mm.
+(rule "UNO holes H3/H4 vs JMISC courtyard"
+	(constraint courtyard_clearance (min 0mm))
+	(severity ignore)
+	(condition "(A.Reference == 'JMISC' && (B.Reference == 'H3' || B.Reference == 'H4')) || (B.Reference == 'JMISC' && (A.Reference == 'H3' || A.Reference == 'H4'))"))
+
+# J1 (FH12) is mounted with its FPC entry flush with the top edge on purpose;
+# its outline silk reaches the edge and gets clipped by the fab.
+(rule "J1 silk flush with board edge"
+	(condition "A.memberOfFootprint('J1') && A.Layer == 'B.SilkS' && B.Layer == 'Edge.Cuts'")
+	(constraint silk_clearance (min 0mm))
+	(severity ignore))
+
+# MIPI DSI: 100 ohm differential on JLC04161H-7628 outer layers
+# (0.2104 mm 7628 prepreg to the adjacent GND plane). 0.18 / 0.15 mm solves
+# to ~99 ohm with solder mask. Order JLCPCB impedance control with this stackup.
+(rule "DSI 100R differential pairs"
+	(condition "A.NetName == 'DSI_*'")
+	(constraint track_width (min 0.17mm) (opt 0.18mm) (max 0.19mm))
+	(constraint diff_pair_gap (min 0.14mm) (opt 0.15mm) (max 1.2mm))
+	(constraint diff_pair_uncoupled (max 7mm)))
+# (max gap 1.2 mm only so the 1.27 mm-pitch breakouts at the header pads pass;
+#  every routed run between the via fields and the FFC is 0.15 mm by construction)
+
+(rule "DSI intra-pair gap"
+	(condition "A.NetName == 'DSI_*' && A.isCoupledDiffPair()")
+	(constraint clearance (min 0.14mm)))
+
+(rule "DSI clearance to other nets"
+	(condition "A.NetName == 'DSI_*' && !A.isCoupledDiffPair()")
+	(constraint clearance (min 0.2mm)))
+
+# Keep same-layer GND pour away from the pairs so they stay microstrip
+# (referenced to the plane underneath), not coplanar.
+(rule "DSI pour keep-away"
+	(condition "A.NetName == 'DSI_*' && B.Type == 'Zone'")
+	(constraint clearance (min 0.4mm)))
+
+(rule "Boost converter power widths"
+	(condition "A.NetName == '+5V' || A.NetName == 'BL_SW'")
+	(constraint track_width (min 0.4mm)))
