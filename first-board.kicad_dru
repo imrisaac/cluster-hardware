@@ -45,3 +45,9 @@
 (rule "Boost converter power widths"
 	(condition "A.NetName == '+5V' || A.NetName == 'BL_SW'")
 	(constraint track_width (min 0.4mm)))
+
+# VIN = UNO Q DC_IN (JMEDIA 57/59) <-> J2 JST GH (pins 1-2). GH contacts are
+# 1 A each, so the rail can carry ~2 A; keep VIN copper at least 0.5 mm wide.
+(rule "VIN power width"
+	(condition "A.NetName == 'VIN'")
+	(constraint track_width (min 0.5mm)))
